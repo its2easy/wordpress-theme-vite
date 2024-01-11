@@ -1,0 +1,7 @@
+{
+  "themeName": "wordpress-theme-vite",
+  "proxySource": "wp-theme-vite.local",
+  "distFolder": "dist",
+  "viteServerPort": 3005,
+  "devModeProxyHeader": "X-BS-Proxy"
+}
