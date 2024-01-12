@@ -1,3 +1,44 @@
+@charset "utf-8";
+
+@import 'app/variables';
+@import 'app/vendor-functions-mixins'; // doesn't produce css
+@import 'app/vendor';
+
+@import 'app/header';
+
 body{
-    background: yellow;
+
+}
+.test-group{
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.125);;
+    padding: 20px 15px;
+    max-width: 500px;
+    margin: 15px auto 30px;
+    &__title{
+        font-size: 26px;
+    }
+}
+.check-item{
+    // default error state, this will be overwritten by other stylesheets
+    &:after{
+        display: inline-block;
+        content: $errorIcon;
+    }
+}
+.check-bs{
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+}
+.check-bs-alert{
+    margin-bottom: 0;
+    margin-left: 30px;
+}
+
+
+.check-main-css{
+    &:after{
+        content: $successIcon;
+    }
 }

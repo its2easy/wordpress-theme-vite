@@ -1,0 +1,7 @@
+// no variable import for simplicity
+
+.check-component-2{
+    &:after{
+        content: '✅';
+    }
+}

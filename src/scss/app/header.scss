@@ -1,0 +1,9 @@
+.header{
+    // this is to test usage of static assets
+    &__logo{
+        width: 40px;
+        height: 40px;
+        background-image: url('/wp-content/themes/wordpress-theme-vite/assets/img/wp-logo.png');
+        background-size: contain;
+    }
+}

@@ -31,8 +31,14 @@ export default defineConfig({
         manifest: true, // need for wordpress to enqueue files (option works only for prod build)
         target: 'modules', // esbuild target, same as .browserslistrc
         rollupOptions: {
-            input: { // paths are relative to vite config or root option
+            input: {
+                // paths (object values) are relative to vite config or root option. Object keys are arbitrary, but
+                // they will be used in the names of the compiled chunks
                 main: 'src/js/main-entrypoint.js',
+                style_only: 'src/scss/style-only-entrypoint.scss',
+                frontpage: 'src/js/frontpage-entrypoint.js',
+                page_1: 'src/js/page-1-entrypoint.js',
+                page_2: 'src/js/page-2-entrypoint.js',
             },
             external: [ // https://github.com/vitejs/vite/issues/10766
                 /wp-content[\/\\]themes[\/\\][\w-]+[\/\\]assets/, // don't precess absolute paths to the theme static assets
@@ -81,7 +87,7 @@ export default defineConfig({
     css: {
         devSourcemap: true,
     },
-    esbuild: { legalComments: 'none' }, // strip comments (about 7kb), 'external' doesn't work
+    esbuild: { legalComments: 'none' }, // strip comments (~5-10kb), 'external' option doesn't work
 });
 
 // To check stats: npx vite-bundle-visualizer --output dist/stats.html

@@ -6,15 +6,14 @@ import 'vite/modulepreload-polyfill';
 import '../scss/main-entrypoint.scss'; // basic styles for the website
 
 /**
- * Data from wordpress side
- * @typedef {Object} phpDataObject
+ * Data from wordpress side (global var)
+ * todo find jsdoc example that works with ide autocompleting
+ * @typedef {Object} phpData
  * @property {string} ajax_url - Path to admin-ajax.php
  */
 
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log('main entrypoint');
-
-    /**  @type {phpDataObject} */
-    const phpData = window.phpData; // to test ide autocompletion
     console.log(`wp ajax url: ${phpData.ajax_url}`);
 });

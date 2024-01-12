@@ -1,0 +1,7 @@
+// this file is imported form js, but should be included in frontpage-entrypoint-*.css chunk
+.check-frontpage-entry{
+    --frontpage-partial-imported-separetely-from-js: 'yes';
+    &:after{ // will be stripped after minification
+        content: '✅';
+    }
+}

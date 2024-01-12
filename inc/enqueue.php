@@ -1,7 +1,13 @@
 <?php
 // function returns the entry points for the current page only because not every asset needs to be included on every page
 function theme_get_entry_points_for_current_page(): array {
+    // order is important
     $entry_points = array( 'src/js/main-entrypoint.js' ); // files could be added conditionally
+    $entry_points[] = 'src/scss/style-only-entrypoint.scss';
+
+    if (is_front_page()) $entry_points[] = 'src/js/frontpage-entrypoint.js';
+    if (is_page_template('page-templates/page-1.php')) $entry_points[] = 'src/js/page-1-entrypoint.js';
+    if (is_page_template('page-templates/page-2.php')) $entry_points[] = 'src/js/page-2-entrypoint.js';
     return $entry_points;
 }
 
@@ -14,7 +20,7 @@ function theme_scripts() {
     $scripts_queue   = []; // scripts to include on current page
     $styles_queue    = []; // styles to include on current page
 
-    // ======= DEV (assets from vite dev server)
+    // ======= DEV (assets from vite dev server (only entrypoints for current page))
     if ($is_dev_mode) {
         // In dev mode vite emits the same files as defined in build.rollupOptions.input in vite.config.js and these
         // names are returned from theme_get_entry_points_for_current_page().
@@ -29,7 +35,7 @@ function theme_scripts() {
         try {
             $manifest = theme_get_vite_manifest_data($frontend_config['distFolder']);// vite manifest
         } catch (Exception $e) {
-            wp_die($e->getMessage());
+            wp_die($e->getMessage()); // optional
         }
 
         // process each entry point for current page and add its assets to the queues
@@ -132,3 +138,30 @@ function theme_output_js_data() {
     <?php
 }
 add_action('wp_head', 'theme_output_js_data');
+
+/**
+ * (Optional) Add main compiled css files to the gutenberg editor. 'current_screen' is used to avoid downloading files (and
+ * displaying errors) on all pages, as would be the case with 'after_setup_theme'
+ *
+ * @param $screen WP_Screen
+ */
+function theme_add_editor_styles($screen) {
+    if ($screen->base !== 'post') return; // 'post_type' is not checked, assuming all CPTs could have gutenberg
+
+    try {
+        $front_build_config = theme_get_frontend_config(); // shared variables between js and php
+        $manifest           = theme_get_vite_manifest_data($front_build_config['distFolder']);// vite manifest
+        $css_files          = [];
+        if (isset($manifest['src/js/main-entrypoint.js']['css'])) {
+            // basic html styles are in app-entrypoint which is imported in main js entry (src/js/common.js)
+            $css_files = $manifest['src/js/main-entrypoint.js']['css']; // strings like '{assetsDir}/chunk-1a2b3c.css'
+        }
+        foreach ($css_files as $css_file) {
+            add_editor_style("{$front_build_config['distFolder']}/$css_file"); // path relative to the theme!
+        }
+    } catch (Exception $e) {
+        // phpcs:ignore WordPress.PHP.DevelopmentFunctions -- intentional error trigger for admin area
+        trigger_error($e->getMessage(), E_USER_WARNING);// don't break the entire admin page
+    }
+}
+add_action('current_screen', 'theme_add_editor_styles');

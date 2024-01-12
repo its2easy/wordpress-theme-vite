@@ -1,0 +1,10 @@
+@charset "utf-8";
+
+@import 'app/variables';
+@import 'app/vendor-functions-mixins';
+
+.check-page-1-entry{
+    &:after{
+        content: $successIcon;
+    }
+}

@@ -1,0 +1,15 @@
+@charset "utf-8";
+
+@import 'app/variables';
+@import 'app/vendor-functions-mixins';
+
+.check-frontpage-entry{
+    &:after{
+        content: $successIcon;
+    }
+}
+.check-autoprefixer{
+    appearance: none; // ff 80+, safari 15.4+
+    mask-image: none;
+    print-color-adjust: initial;
+}
