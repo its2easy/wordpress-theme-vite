@@ -73,7 +73,7 @@ export default defineConfig({
             },
         }),
         // legacy({ // example for polyfills
-        //     modernPolyfills: true, // entry name in manifest is 'vite/legacy-polyfills'
+        //     modernPolyfills: true, // entry name in manifest.json is 'vite/legacy-polyfills'
         //     polyfills: false,
         //     renderLegacyChunks: false,
         // }),
@@ -87,16 +87,19 @@ export default defineConfig({
     css: {
         devSourcemap: true,
     },
-    esbuild: { legalComments: 'none' }, // strip comments (~5-10kb), 'external' option doesn't work
+    // strip comments from imported packages (~5-10kb), 'external' and 'linked' options don't work
+    // https://github.innominds.com/vitejs/vite/discussions/5329
+    esbuild: { legalComments: 'none' },
 });
 
 // To check stats: npx vite-bundle-visualizer --output dist/stats.html
 
-// core-js and polyfills: polyfills could be added with @vitejs/plugin-legacy and modernPolyfills: true, BUT the targets
-// are hardcoded for now (v4) (https://github.com/vitejs/vite/blob/main/packages/plugin-legacy/src/index.ts) and despite
-// 'plugin-legacy' uses `useBuiltIns: "usage"` the polyfill chunk is over 100kb and there is no way to exclude some
-// polyfills. So the only reasonable way to polyfill features is to add each of them MANUALLY to the list
+// core-js and polyfills: polyfills could be added with @vitejs/plugin-legacy and modernPolyfills: true, BUT the `targets`
+// option is for legacy polyfills, and targets for modernPolyfills are hardcoded for now (v5.2.0). (https://github.com/vitejs/vite/blob/main/packages/plugin-legacy/src/index.ts)
+// So despite 'plugin-legacy' uses `useBuiltIns: "usage"` the polyfill chunk is big and there is no way to
+// exclude some polyfills. The only reasonable way to polyfill features is to add each of them MANUALLY to the array
 // in `modernPolyfills` option.
+// todo check https://github.com/vitejs/vite/issues/14527 for modernTargets
 
 // Long scss compilation: slow 'sass' package, maybe the things will change in the future.
 // Workarounds: use sass-embedded https://github.com/vitejs/vite/issues/6736#issuecomment-1492974590, disable

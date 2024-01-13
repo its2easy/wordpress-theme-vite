@@ -9,7 +9,7 @@
 function theme_get_frontend_config(): array {
 
     $theme_path = get_template_directory();
-    // phpcs:ignore WordPress.WP.AlternativeFunctions -- todo check wp alternative
+    // phpcs:ignore WordPress.WP.AlternativeFunctions -- ok for local files
     $config = file_get_contents("$theme_path/frontend-config.json");
     return json_decode($config, true);
 }
@@ -44,14 +44,14 @@ function theme_is_dev_server(): bool {
  */
 function theme_get_vite_manifest_data(string $folder): array {
     $theme_path             = get_template_directory();
-    $manifest_path          = "$theme_path/$folder/manifest.json";
+    $manifest_path          = "$theme_path/$folder/.vite/manifest.json";
     $resolved_manifest_path = realpath($manifest_path);
 
     if (!is_file($resolved_manifest_path) || !is_readable($resolved_manifest_path)) {
         throw new Exception("Can't load vite manifest file: $manifest_path");
     }
 
-    // phpcs:ignore WordPress.WP.AlternativeFunctions -- todo check wp alternative
+    // phpcs:ignore WordPress.WP.AlternativeFunctions -- ok for local files
     $vite_manifest = file_get_contents($resolved_manifest_path);
     return json_decode($vite_manifest, true);
 }
