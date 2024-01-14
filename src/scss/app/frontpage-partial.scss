@@ -2,6 +2,6 @@
 .check-frontpage-entry{
     --frontpage-partial-imported-separetely-from-js: 'yes';
     &:after{ // will be stripped after minification
-        content: '✅';
+        content: var(--success-icon);
     }
 }

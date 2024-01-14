@@ -1,8 +1,8 @@
 import Modal from 'bootstrap/js/dist/modal'; // BS5 doesn't have esm for plugins, so it's umd
 
-import '../scss/frontpage-entrypoint.scss';
-import '../scss/app/frontpage-partial.scss'; // test import from js instead of importing it from scsss
-import { initExampleComponent1 } from './components/example-component-1.js'; // component with styles
+import '@/scss/frontpage-entrypoint.scss'; // check @ alias
+import '../scss/app/frontpage-partial.scss'; // test import from js instead of importing it from scss
+import { initExampleComponent1 } from '@/js/components/example-component-1.js'; // component with styles
 import { testFunctionImportedOnlyOnce } from "./pages/frontpage.js";
 import { testFunctionImportedInManyEntrypoints } from "./pages/other.js";
 import { testFunctionImportedInManyEntrypointsV2 } from "./pages/other2.js";
@@ -23,14 +23,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // test dynamic import
-    const dynamicImportButtons = document.querySelectorAll('.js__dynamic-import');
-    dynamicImportButtons.forEach((button) => {
-        button.addEventListener('click', function () {
-            console.log('start import');
-            import("./dynamic-import.js").then((mod) => {
-                mod.testDynamicImport();
-            });
-        });
-    });
 });

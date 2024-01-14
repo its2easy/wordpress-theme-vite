@@ -26,6 +26,7 @@ while (have_posts()) :
             <div class="check-item check-page-1-entry">page 1 entrypoint:</div>
             <div class="check-item check-page-2-entry">page 2 entrypoint (js-only):</div>
             <div class="check-item check-component-1">example component 1:</div>
+            <div class="check-item check-dynamic-import">css of dynamically imported js:</div>
         </div>
     </div>
 </section>

@@ -16,4 +16,15 @@ import '../scss/main-entrypoint.scss'; // basic styles for the website
 document.addEventListener('DOMContentLoaded', () => {
     console.log('main entrypoint');
     console.log(`wp ajax url: ${phpData.ajax_url}`);
+
+    // test dynamic import
+    const dynamicImportButtons = document.querySelectorAll('.js__dynamic-import');
+    dynamicImportButtons.forEach((button) => {
+        button.addEventListener('click', function () {
+            console.log('start import');
+            import("./dynamic-import.js").then((mod) => {
+                mod.testDynamicImport();
+            });
+        });
+    });
 });

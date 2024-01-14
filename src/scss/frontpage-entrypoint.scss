@@ -5,7 +5,7 @@
 
 .check-frontpage-entry{
     &:after{
-        content: $successIcon;
+        content: var(--success-icon);;
     }
 }
 .check-autoprefixer{

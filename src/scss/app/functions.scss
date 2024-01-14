@@ -1,0 +1,3 @@
+@function img-url($img) {
+    @return url('/wp-content/themes/wordpress-theme-vite/assets/img/' + $img);
+}

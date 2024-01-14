@@ -10,7 +10,11 @@
     <header>
         <nav class="navbar navbar-expand-lg bg-light">
             <div class="container">
-                <div class="header__logo"></div>
+                <!-- this is to test url() in scss -->
+                <div class="header__logos">
+                    <div class="header__logo"></div>
+                    <div class="header__logo2"></div>
+                </div>
 
                 <?php
                 $locations  = get_nav_menu_locations();

@@ -16,8 +16,8 @@ export default defineConfig({
      * wp root as vite root and path to build.outDir (wp-content/.../dist/assets) as build.assetsDir, but it won't work.
      * The other way is to use relative url path to `build.outDir` as `base`.
      *
-     * [prod build]: base is used to create urls for dynamically imported assets, because they are inserted in <head>
-     * of a page and can't be file relative (./chunk2.js)
+     * [prod build]: base is used by vite to create URLs for dynamically imported js (if it has dependencies!) because
+     * it (and its css) are inserted in <head> of a page as rel=modulepreload and can't be file relative (./chunk2.js)
      * but should be domain relative (/wp-content/themes/theme/dist/assets/chunk2.js)
      *
      * [dev build]: base is used as an url where vite (not WP!) server serves its assets. Scheme is
@@ -83,6 +83,7 @@ export default defineConfig({
         port: config.viteServerPort, // vite server port 3005
         strictPort: true, // match exactly because it used on PHP side
         cors: true, // required to load scripts from custom host (vite server)
+        // origin: `http://localhost:${config.viteServerPort}`, // this is required for `resolve.alias` for images in dev mode
     },
     css: {
         devSourcemap: true,
@@ -90,6 +91,15 @@ export default defineConfig({
     // strip comments from imported packages (~5-10kb), 'external' and 'linked' options don't work
     // https://github.innominds.com/vitejs/vite/discussions/5329
     esbuild: { legalComments: 'none' },
+    resolve: {
+        alias: {
+            '@': resolve(__dirname, 'src'),
+            // File will be copied to `build.outDir` and url() in css will be `base` + asset filename.
+            // In dev mode Vite serves it at dev server origin, but paths in css are with browserSync origin.
+            // To make it work add `http://localhost:${config.viteServerPort}` as `server.origin`
+            '@img': resolve(__dirname, 'assets/img'), // doesn't work in dev mode!
+        }
+    },
 });
 
 // To check stats: npx vite-bundle-visualizer --output dist/stats.html

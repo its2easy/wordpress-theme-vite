@@ -1,9 +1,23 @@
 .header{
-    // this is to test usage of static assets
+    // this is to test usage of static assets in url()
+    &__logos{
+        display: flex;
+        align-items: center;
+    }
     &__logo{
         width: 40px;
         height: 40px;
+        // basic option
         background-image: url('/wp-content/themes/wordpress-theme-vite/assets/img/wp-logo.png');
         background-size: contain;
+    }
+    &__logo2{
+        width: 40px;
+        height: 40px;
+        //background-image: img-url('wp-logo.png'); // custom scss function
+        //background-image: url('#{$img-path}/wp-logo.png'); // scss variable
+        background-image: url('@img/wp-logo.png'); // doesn't work in dev mode
+        background-size: contain;
+        margin-left: 15px;
     }
 }

@@ -9,6 +9,8 @@ while (have_posts()) :
 <section>
     <div class="container">
         <h1>Page-1 template</h1>
+        <button type="button" class="btn btn-primary js__dynamic-import">Check dynamic import</button>
+
         <div class="test-group">
             <h2 class="test-group__title">Checks for current page (css):</h2>
             <div class="check-item check-main-css">main entrypoint:</div>
@@ -16,6 +18,7 @@ while (have_posts()) :
             <div class="check-item check-page-1-entry">page 1 entrypoint:</div>
             <div class="check-item check-component-1">example component 1:</div>
             <div class="check-item check-component-2">example component 2:</div>
+            <div class="check-item check-dynamic-import">css of dynamically imported js:</div>
             <div class="check-bs">
                 <span>bootstrap styles:</span>
                 <div class="alert alert-success mb-0 check-bs-alert" role="alert">success alert!</div>
