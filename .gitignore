@@ -20,6 +20,7 @@ dist
 *.po
 *.mo
 *.pot~
+.env
 
 .stylelintcache
 .eslintcache

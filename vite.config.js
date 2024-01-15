@@ -1,6 +1,7 @@
 import { resolve } from 'path';
 import { defineConfig } from 'vite';
 import VitePluginBrowserSync from 'vite-plugin-browser-sync' // https://github.com/Applelo/vite-plugin-browser-sync
+import 'dotenv/config'; // https://github.com/motdotla/dotenv
 
 // shared config for js and php. config.themeName - it's possible to get themeName from process.cwd() but in some cases
 // (like docker) theme folder name in project is not the same as folder name inside WP, so themeName is in config.
@@ -51,7 +52,7 @@ export default defineConfig({
             bs: {
                 //port: 3010, // default is 3000, change if you have conflicts
                 proxy: {
-                    target: config.proxySource, // host from local php server
+                    target: process.env.PROXY_SOURCE, // host from local php server
                     proxyReq: [ // set header to check dev mode on WP side
                         function (proxyReq) {
                             proxyReq.setHeader(config.devModeProxyHeader, "1"); // value is not important

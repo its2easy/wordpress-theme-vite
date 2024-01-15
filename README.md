@@ -1,7 +1,5 @@
 ## todo
 
-proxy to env
-
 add readme
 
 check modulepreload as script
