@@ -6,6 +6,7 @@
 
 @import 'app/functions';
 @import 'app/header';
+@import 'app/blocks';
 
 :root{
     --success-icon: '✅';
@@ -42,6 +43,6 @@
 
 .check-main-css{
     &:after{
-        content: var(--success-icon);;
+        content: var(--success-icon);
     }
 }

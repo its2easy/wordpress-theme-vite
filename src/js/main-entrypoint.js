@@ -15,7 +15,7 @@ import '../scss/main-entrypoint.scss'; // basic styles for the website
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('main entrypoint');
-    console.log(`wp ajax url: ${phpData.ajax_url}`);
+    console.log(`phpData is working: wp ajax url - ${phpData.ajax_url}`);
 
     // test dynamic import
     const dynamicImportButtons = document.querySelectorAll('.js__dynamic-import');

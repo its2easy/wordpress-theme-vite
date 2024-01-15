@@ -1,16 +1,6 @@
 <?php
-// function returns the entry points for the current page only because not every asset needs to be included on every page
-function theme_get_entry_points_for_current_page(): array {
-    // order is important
-    $entry_points = array( 'src/js/main-entrypoint.js' );
-    $entry_points[] = 'src/scss/style-only-entrypoint.scss';
-    // files could be added conditionally
-    if (is_front_page()) $entry_points[] = 'src/js/frontpage-entrypoint.js';
-    if (is_page_template('page-templates/page-1.php')) $entry_points[] = 'src/js/page-1-entrypoint.js';
-    if (is_page_template('page-templates/page-2.php')) $entry_points[] = 'src/js/page-2-entrypoint.js';
-    return $entry_points;
-}
-// main function that handles assets
+
+// main function that handles dynamic assets
 function theme_enqueue_vite_assets() {
     $is_dev_mode     = theme_is_dev_server();
     $entry_points    = theme_get_entry_points_for_current_page();
@@ -123,42 +113,116 @@ function theme_add_modulepreload_links() {
 add_action('wp_head', 'theme_add_modulepreload_links', 20);
 
 
-// Pass data to js (one 'phpData' object for all the scripts and pages)
-function theme_output_js_data() {
-    $data = [
-        'ajax_url' => admin_url('admin-ajax.php'),
-    ];
-    ?>
-    <script type="text/javascript">
-        const phpData = <?= wp_json_encode($data) ?>;
-    </script>
-    <?php
-}
-add_action('wp_head', 'theme_output_js_data');
+// =========================== HELPERS =======================================
 
 /**
- * (Optional) Add main compiled css files to the gutenberg editor. 'current_screen' is used to avoid downloading files (and
- * displaying errors) on all pages, as would be the case with 'after_setup_theme'
+ * Returns a config with variables shared between js and php. Config is a part of the theme so the function doesn't
+ * check if file exists
  *
- * @param $screen WP_Screen
+ * @return array<string, string|int>
  */
-function theme_add_editor_styles($screen) {
-    if ($screen->base !== 'post') return; // 'post_type' is not checked, assuming all CPTs could have gutenberg
-
-    try {
-        $front_build_config = theme_get_frontend_config(); // shared variables between js and php
-        $manifest           = theme_get_vite_manifest_data($front_build_config['distFolder']);// vite manifest
-        $css_files          = [];
-        if (isset($manifest['src/js/main-entrypoint.js']['css'])) {
-            // basic html styles are in app-entrypoint which is imported in main js entry (src/js/common.js)
-            $css_files = $manifest['src/js/main-entrypoint.js']['css']; // strings like '{assetsDir}/chunk-1a2b3c.css'
-        }
-        foreach ($css_files as $css_file) {
-            add_editor_style("{$front_build_config['distFolder']}/$css_file"); // path relative to the theme!
-        }
-    } catch (Exception $e) {
-        // phpcs:ignore WordPress.PHP.DevelopmentFunctions -- intentional error trigger for admin area
-        trigger_error($e->getMessage(), E_USER_WARNING);// don't break the entire admin page
-    }
+function theme_get_frontend_config(): array {
+    $theme_path = get_template_directory();
+    // phpcs:ignore WordPress.WP.AlternativeFunctions -- ok for local files
+    $config = file_get_contents("$theme_path/frontend-config.json");
+    return json_decode($config, true);
 }
-add_action('current_screen', 'theme_add_editor_styles');
+
+/**
+ * Checks if current environment is dev (by BrowserSync custom header)
+ *
+ * @return bool
+ */
+function theme_is_dev_server(): bool {
+    // $_SERVER['HTTP_HOST'] and $_SERVER['SERVER_NAME'] could be from docker host, so check custom BS proxy header.
+    // Alternative to this approach is to set env var or php const, and change it every time you switch between prod
+    // and dev modes 👎, or check for the existence of manifest.dev.json from vite-plugin-dev-manifest plugin
+    $frontend_config = theme_get_frontend_config();
+    if (function_exists('getallheaders')) { // apache specific!, if you use nginx add polyfill for it
+        $headers           = getallheaders();
+        $proxy_header_name = $frontend_config['devModeProxyHeader']; // set by browserSync in vite.config.js
+        if (isset($headers[ $proxy_header_name ])) { // value is not important, check for the presence of the header
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Returns an array with build data from manifest.json.
+ * Manifest example: https://vitejs.dev/guide/backend-integration.html
+ *
+ * @param string $folder Folder with manifest file
+ * @return array
+ * @throws Exception
+ */
+function theme_get_vite_manifest_data(string $folder): array {
+    $theme_path             = get_template_directory();
+    $manifest_path          = "$theme_path/$folder/.vite/manifest.json";
+    $resolved_manifest_path = realpath($manifest_path);
+
+    if (!is_file($resolved_manifest_path) || !is_readable($resolved_manifest_path)) {
+        throw new Exception("Can't load vite manifest file: $manifest_path");
+    }
+
+    // phpcs:ignore WordPress.WP.AlternativeFunctions -- ok for local files
+    $vite_manifest = file_get_contents($resolved_manifest_path);
+    return json_decode($vite_manifest, true);
+}
+
+/**
+ * The function recursively searches for dependencies of the passed $entry. With $assetType='js' they are the scripts
+ * that should be preloaded with <link rel='modulepreload' />, with $assetType='css' they are the styles from chunks
+ * on which the current entry point depends
+ *
+ * @param string $entry Entry name (as in vite.config.js build.rollupOptions.input)
+ * @param array $manifest Vite manifest data
+ * @param string $asset_type 'js' or 'css'
+ *
+ * @return string[]
+ */
+function theme_get_assets_from_dependencies(string $entry, array $manifest, string $asset_type): array {
+    if (!isset($manifest[ $entry ]['imports'])) return [];// skip if no entry or no 'imports' in this entry
+
+    $assets = [];
+    foreach ($manifest[ $entry ]['imports'] as $imports_entry) {  // 'imports' values are entry names, not file paths
+
+        if (isset($manifest[ $imports_entry ]['imports'])) { // if entry from 'imports' has its own nested 'imports'
+            // assuming that the manifest can't have cyclic dependencies, so there is no check for recursion depth
+            $nested_assets = theme_get_assets_from_dependencies($imports_entry, $manifest, $asset_type);
+            $assets        = array_merge($assets, $nested_assets);
+        }
+
+        // add the main asset(s) only after its dependencies
+        if ($asset_type === 'css') {
+            if (isset($manifest[ $imports_entry ]['css'])) {
+                $assets = array_merge($assets, $manifest[ $imports_entry ]['css']);
+            }
+        } elseif ($asset_type === 'js') {
+            $assets[] = $manifest[ $imports_entry ]['file']; // 'imports' file after its dependencies
+        }
+
+    } // foreach
+
+    return $assets;
+}
+
+/**
+ * Collects all the css files for the entry in the right order (except for the main $entry 'file' if $entry is css-only)
+ *
+ * @param string $entry Name of entry
+ * @param array $manifest Vite manifest data
+ * @return string[]
+ */
+function theme_get_styles_for_entry(string $entry, array $manifest): array {
+    $styles                 = [];
+    $styles_of_dependencies = theme_get_assets_from_dependencies($entry, $manifest, 'css');
+    $styles                 = array_merge($styles, $styles_of_dependencies);
+
+    // css for current entrypoint if exist ([] in 'css' key), added after all styles of the current entry dependencies
+    if (isset($manifest[ $entry ]['css'])) {
+        $styles = array_merge($styles, $manifest[ $entry ]['css']);
+    }
+
+    return $styles;
+}

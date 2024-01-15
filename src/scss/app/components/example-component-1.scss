@@ -1,6 +1,17 @@
-.check-component-1{
+// component is a dependency => his styles have lower priority => additional class in selector to override styles in
+// main-entrypoint.scss (in the case when the component is imported in the main-entrypoint.{js,scss})
+.check-component-1.check-item{
     &:after{
         content: var(--success-icon);
+    }
+}
+
+.block-editor-block-list__layout{
+    .wp-block-paragraph{
+        &:before{
+            display: inline-block;
+            content: var(--success-icon);
+        }
     }
 }
 

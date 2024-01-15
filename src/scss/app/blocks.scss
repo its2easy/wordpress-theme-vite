@@ -1,0 +1,10 @@
+// this is to check that main stylesheet is included and applied to paragraph blocks inside gutenberg editor
+.block-editor-block-list__layout{
+    .wp-block-paragraph{
+        &:after{
+            display: inline-block;
+            content: var(--success-icon);
+        }
+    }
+}
+
