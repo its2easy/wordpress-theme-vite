@@ -2,18 +2,16 @@
 // function returns the entry points for the current page only because not every asset needs to be included on every page
 function theme_get_entry_points_for_current_page(): array {
     // order is important
-    $entry_points = array( 'src/js/main-entrypoint.js' ); // files could be added conditionally
+    $entry_points = array( 'src/js/main-entrypoint.js' );
     $entry_points[] = 'src/scss/style-only-entrypoint.scss';
-
+    // files could be added conditionally
     if (is_front_page()) $entry_points[] = 'src/js/frontpage-entrypoint.js';
     if (is_page_template('page-templates/page-1.php')) $entry_points[] = 'src/js/page-1-entrypoint.js';
     if (is_page_template('page-templates/page-2.php')) $entry_points[] = 'src/js/page-2-entrypoint.js';
     return $entry_points;
 }
-
-function theme_scripts() {
-    //if (is_admin()) return; // Fix wp5.8 new widgets which load frontend assets on backend widgets page
-
+// main function that handles assets
+function theme_enqueue_vite_assets() {
     $is_dev_mode     = theme_is_dev_server();
     $entry_points    = theme_get_entry_points_for_current_page();
     $frontend_config = theme_get_frontend_config(); // shared variables between js and php
@@ -26,11 +24,11 @@ function theme_scripts() {
         // names are returned from theme_get_entry_points_for_current_page().
         // There is no @vite/client script here because it's handled by vite-plugin-browser-sync
         foreach ($entry_points as $entry_point) {
-            $scripts_queue[] = $entry_point; // path to src, for ex. "src/js/main.js", css are inside js
+            $scripts_queue[] = $entry_point; // path to src, for ex. "src/js/main.js", styles loaded from js files
         }
     }
 
-    // ======= PROD (get paths from vite manifest.json file)
+    // ======= PROD (assets from vite manifest.json file)
     if (!$is_dev_mode) {
         try {
             $manifest = theme_get_vite_manifest_data($frontend_config['distFolder']);// vite manifest
@@ -43,12 +41,14 @@ function theme_scripts() {
             if (!isset($manifest[ $entry_point ])) continue; // entry is not present in manifest
 
             // $styles_queue is shared between all entry points so the order of .css files is important:
-            // 1) styles of 'imports', 2) styles in 'css' of the $entry_point 3) $entry_point itself if it's a css file
+            // 1) styles of 'imports', 2) styles in 'css' of the $entry_point 3) $entry_point itself if it's a css entry
             $entry_styles = theme_get_styles_for_entry($entry_point, $manifest); // returns 1) and 2)
             $styles_queue = array_merge($styles_queue, $entry_styles);
 
             // main file of the entry, path is a string in 'file' key (relative to build folder, like assets/main-8c0d.js)
             if (pathinfo($manifest[ $entry_point ]['file'], PATHINFO_EXTENSION) === 'js') {
+                // only the entrypoints are added here, their dependencies (from 'imports' key in manifest) are added
+                // as link rel=modulepreload in another function
                 $scripts_queue[] = $manifest[ $entry_point ]['file']; // js entry
             } else {
                 $styles_queue[] = $manifest[ $entry_point ]['file']; // 3) css-only entry, should be added last
@@ -59,8 +59,8 @@ function theme_scripts() {
 
     $theme_folder = get_template();
     // Path to 'outDir' folder where the compiled files are located, should match `base` option in vite.config.js
-    // Dev mode assets don't require to be served from the same url, because these assets are not 'real' files but
-    // for simplicity the path is the same for both modes (except for the host in dev mode)
+    // Dev mode assets don't require to be served from the same url, because these assets are not 'real' files, but
+    // for simplicity the path is the same for both modes (except for the assets host in dev mode)
     $assets_folder_url = "/wp-content/themes/$theme_folder/{$frontend_config['distFolder']}";
 
     // ======= Include assets from queues
@@ -70,19 +70,16 @@ function theme_scripts() {
     foreach (array_unique($scripts_queue) as $js_file) { // JS
         // $js_file is something like 'src/js/main.js' for dev and 'assets/main-123123.js' for prod
         $asset_path = ($is_dev_mode)
-            ? "http://localhost:{$frontend_config['viteServerPort']}$assets_folder_url/$js_file"
+            ? "http://localhost:{$frontend_config['viteServerPort']}/$js_file"
             : "$assets_folder_url/$js_file";
         wp_enqueue_script($js_file, $asset_path, array(), null, true);
     }
-
-    // not included by default, but some plugins (for example in admin bar) may include it. Dequeue is not enough
-    wp_deregister_script('jquery');
 }
-add_action('wp_enqueue_scripts', 'theme_scripts');
+add_action('wp_enqueue_scripts', 'theme_enqueue_vite_assets');
 
 
-// add type="module" and crossorigin to vite scripts because they are es modules (no native wp support yet)
-function theme_modify_script_tag($tag, $handle) {
+// add type="module" and crossorigin to vite scripts because they are es-modules (no native wp support yet)
+function theme_modify_script_tag_for_modules($tag, $handle) {
     if (strpos($handle, 'assets') !== false || // prod assets
         strpos($handle, 'src') !== false) { // dev assets
         // remove type if there is one (for example if there is no add_theme_support('html5, ['script']) in the theme)
@@ -91,12 +88,12 @@ function theme_modify_script_tag($tag, $handle) {
     }
     return $tag;
 }
-add_filter('script_loader_tag', 'theme_modify_script_tag', 10, 3);
+add_filter('script_loader_tag', 'theme_modify_script_tag_for_modules', 10, 3);
 
 // Add module preload directives to <head>, because vite doesn't handle wp templates
 // https://vitejs.dev/guide/features.html#preload-directives-generation
-function theme_add_modulepreload_tags() {
-    if (theme_is_dev_server()) return; // modulepreload only for prod
+function theme_add_modulepreload_links() {
+    if (theme_is_dev_server()) return; // modulepreload required only for prod
 
     $frontend_config = theme_get_frontend_config(); // shared vars between js and php
     try {
@@ -118,12 +115,12 @@ function theme_add_modulepreload_tags() {
     }
 
     $preload_html = '';
-    foreach (array_unique($urls) as $url) {
+    foreach (array_unique($urls) as $url) { // no 'as="script"' because it is default
         $preload_html .= "<link rel='modulepreload' href='$assets_folder_url/$url' />\r\n";
     }
     echo $preload_html;
 }
-add_action('wp_head', 'theme_add_modulepreload_tags', 20);
+add_action('wp_head', 'theme_add_modulepreload_links', 20);
 
 
 // Pass data to js (one 'phpData' object for all the scripts and pages)
