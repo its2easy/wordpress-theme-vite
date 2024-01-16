@@ -1,5 +1,5 @@
 {
-  "themeName": "wordpress-theme-vite",
+  "themeFolder": "wordpress-theme-vite",
   "distFolder": "dist",
   "viteServerPort": 3005,
   "devModeProxyHeader": "X-BS-Proxy"

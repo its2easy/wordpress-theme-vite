@@ -2,8 +2,8 @@ import { resolve } from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import VitePluginBrowserSync from 'vite-plugin-browser-sync' // https://github.com/Applelo/vite-plugin-browser-sync
 
-// shared config for js and php. config.themeName - it's possible to get themeName from process.cwd() but in some cases
-// (like docker) theme folder name in project is not the same as folder name inside WP, so themeName is in config.
+// shared config for js and php. config.themeFolder - it's possible to get themeFolder from process.cwd() but in some cases
+// (like docker) theme folder name in project is not the same as folder name inside WP, so themeFolder is in config.
 import config from './frontend-config.json';
 
 export default defineConfig(({ mode }) => {
@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => {
          */
         base: isDev
             ? '/'
-            : `/wp-content/themes/${config.themeName}/${config.distFolder}`,
+            : `/wp-content/themes/${config.themeFolder}/${config.distFolder}`,
         publicDir: false, // disable copying `public/` to outDir
         build: {
             outDir: resolve(__dirname, `./${config.distFolder}`),
