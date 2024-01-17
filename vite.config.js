@@ -42,7 +42,7 @@ export default defineConfig(({ mode }) => {
                     page_2: 'src/js/page-2-entrypoint.js',
                 },
                 external: [ // https://github.com/vitejs/vite/issues/10766
-                    /wp-content[\/\\]themes[\/\\][\w-]+[\/\\]assets/, // don't process absolute paths to the theme static assets
+                    /wp-content[/\\]themes[/\\][\w-]+[/\\]assets/, // don't process absolute paths to the theme static assets
                 ],
             },
             reportCompressedSize: false,

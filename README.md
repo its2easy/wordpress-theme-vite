@@ -23,7 +23,7 @@ The theme contains a small amount of content that is used primarily to verify th
 There are only a few files related to the asset compilation. The main files are `inc/vite-assets.php`, `vite.config.js`,
 and `frontend-config.json`.
 
-## How to use it with your theme?
+## How to use it in your theme?
 1. Install packages ```npm install vite vite-plugin-browser-sync sass autoprefixer --save-dev```. *sass* and *autoprefixer*
    are optional.
 2. Copy `inc/vite-assets.php` to your theme and include it in `functions.php`.
@@ -82,6 +82,7 @@ background-image: url('/wp-content/themes/theme/assets/img/wp-logo.png');
 
 // path from a scss variable + image
 background-image: url('#{$img-path}/wp-logo.png');
+background-image: url($img-path + '/wp-logo.png');
 
 // custom function that adds an absolute path
 background-image: img-url('wp-logo.png');
