@@ -26,7 +26,6 @@ function theme_after_setup_theme() {
         )
     );
 
-
     add_theme_support('responsive-embeds');
 
     // Gutenberg

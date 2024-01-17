@@ -17,7 +17,7 @@ get_header();
             <div class="check-item check-frontpage-entry">frontpage entrypoint:</div>
             <div class="check-item check-component-1">example component 1:</div>
             <div class="check-item check-component-2">example component 2:</div>
-            <div class="check-item check-dynamic-import">css of dynamically imported js:</div>
+            <div class="check-item check-dynamic-import">css of dynamically imported js (click button ↑):</div>
             <div class="check-bs">
                 <span>bootstrap styles:</span>
                 <div class="alert alert-success mb-0 check-bs-alert" role="alert">success alert!</div>

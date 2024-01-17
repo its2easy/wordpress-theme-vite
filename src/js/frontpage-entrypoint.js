@@ -9,7 +9,7 @@ import { testFunctionImportedInManyEntrypointsV2 } from "./pages/other2.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('frontpage entrypoint');
-    testFunctionImportedOnlyOnce(); // imported only here, shouldn't create separate chunk
+    testFunctionImportedOnlyOnce(); // imported only here, shouldn't create a separate chunk
     initExampleComponent1(); // component 1 loads component 2
     testFunctionImportedInManyEntrypoints();
     testFunctionImportedInManyEntrypointsV2();

@@ -16,7 +16,7 @@
         height: 40px;
         //background-image: img-url('wp-logo.png'); // custom scss function
         //background-image: url('#{$img-path}/wp-logo.png'); // scss variable
-        background-image: url('@img/wp-logo.png'); // doesn't work in dev mode
+        background-image: url('@img/wp-logo.png'); // requires `server.origin` to make it work in dev mode
         background-size: contain;
         margin-left: 15px;
     }

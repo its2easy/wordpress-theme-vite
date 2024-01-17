@@ -8,7 +8,6 @@
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "type": "module",
-    "author": "Dmitriy Kovalev",
     "license": "MIT",
     "repository": {
         "type": "git",

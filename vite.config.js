@@ -2,8 +2,8 @@ import { resolve } from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import VitePluginBrowserSync from 'vite-plugin-browser-sync' // https://github.com/Applelo/vite-plugin-browser-sync
 
-// shared config for js and php. config.themeFolder - it's possible to get themeFolder from process.cwd() but in some cases
-// (like docker) theme folder name in project is not the same as folder name inside WP, so themeFolder is in config.
+// shared config for js and php. `config.themeFolder` - it's possible to get themeFolder from process.cwd() but in some
+// cases (like Docker) theme folder name in project is not the same as folder name inside WP, so themeFolder is in config.
 import config from './frontend-config.json';
 
 export default defineConfig(({ mode }) => {
@@ -13,13 +13,13 @@ export default defineConfig(({ mode }) => {
     return {
         /**
          * Typically `base` is a path to a directory where compiled assets will be served. In WP project the assets are not
-         * copied from `build.outDir` (inside the theme folder) which means `base` should be an absolute path to `build.outDir`.
-         * Vite uses paths like {base}/{build.assetsDir}/chunk-name to load dependencies of dynamically imported modules,
-         * because their urls are using in <link rel> and can't be relative to the file that imports a module
-         * (should be '/wp-content/themes/theme/dist/assets/chunk2.js' instead of './chunk2.js'). It's also required for
-         * static assets like images and fonts, if you want vite to handle them (copy to dist, add hash, etc.)
+         * copied from `build.outDir` (that is inside the theme folder) which means `base` should be an absolute path to
+         * `build.outDir`. Vite uses paths like {base}/{build.assetsDir}/chunk-name to load dependencies of dynamically
+         * imported modules because their URLs are using in <link rel> and can't be relative to the file that imports a
+         * module (should be '/wp-content/themes/theme/dist/assets/chunk2.js' instead of './chunk2.js'). It's also
+         * required for static assets like images and fonts if you want vite to handle them (copy to dist, add hash, etc.)
          *
-         * [dev build]: base is used as an url where vite (not WP!) dev server serves its assets. Scheme is
+         * [dev build]: base is used as a URL where vite (not WP!) dev server serves its assets. Scheme is
          * {server.host}:{server.port}/{base}/{build.assetsDir}/chunk.js. This path should be used in wp_enqueue_script()
          * in dev mode.
          */
@@ -49,11 +49,11 @@ export default defineConfig(({ mode }) => {
         },
         server: {
             //host: true, // true to make it accessible from your local network (Wi-Fi). Default is 'localhost'
-            port: config.viteServerPort, // vite server port 3005
+            port: config.viteServerPort, // vite server port (3005)
             strictPort: true, // match exactly because it used on PHP side
             cors: true, // required to load scripts from custom host (vite server)
             // this is required for `resolve.alias` for static assets (images, fonts, etc.) that are referenced in url()
-            // in css in dev mode. With host: true replace localhost with external ip
+            // in css in dev mode. With `host: true` replace localhost with external ip
             origin: `http://localhost:${config.viteServerPort}`,
         },
         plugins: [
@@ -68,12 +68,11 @@ export default defineConfig(({ mode }) => {
                             },
                         ],
                     },
-                    files: [ // relative to cwd, not to config
+                    files: [ // Reload the page if a file was changed. Relative to cwd, not to config
                         './**/*.php', // all php
                         './assets/**/*', // static assets
                     ],
-                    // `open` is explicitly specified because by default BS will open BS's host AND vite's
-                    // 'localhost:{vite-port}/{base}', and 'base' is a path to build.outDir which is not a valid wp url
+                    // `open` is explicitly specified here to open only browserSync host
                     open: 'local',
                     notify: true,
                     codeSync: true, // override VitePluginBrowserSync default (false), required for 'files' option
@@ -109,10 +108,10 @@ export default defineConfig(({ mode }) => {
 // To check the size of assets: npx vite-bundle-visualizer --output dist/stats.html
 
 // core-js and polyfills: polyfills could be added with @vitejs/plugin-legacy and modernPolyfills: true, BUT the `targets`
-// option is for legacy polyfills, and targets for modernPolyfills are hardcoded for now (v5.2.0). (https://github.com/vitejs/vite/blob/main/packages/plugin-legacy/src/index.ts)
-// So despite 'plugin-legacy' uses `useBuiltIns: "usage"` the polyfill chunk is big and there is no way to
-// exclude some polyfills. The only reasonable way to polyfill features is to add each of them MANUALLY to the array
-// in `modernPolyfills` option.
+// option is for legacy polyfills, and targets for modernPolyfills are hardcoded for now (v5.2.0)
+// https://github.com/vitejs/vite/blob/main/packages/plugin-legacy/src/index.ts So despite 'plugin-legacy' uses
+// `useBuiltIns: "usage"` the polyfill chunk is big and there is no way to exclude some polyfills. The only reliable way
+// to polyfill features is to add each of them MANUALLY to the array in `modernPolyfills` option.
 // todo check https://github.com/vitejs/vite/issues/14527 for modernTargets
 
 // Long scss compilation: slow 'sass' package, maybe the things will change in the future.

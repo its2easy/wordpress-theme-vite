@@ -1,0 +1,244 @@
+<?xml version="1.0"?>
+<ruleset name="wordpress theme">
+    <!-- STANDARDS USED -->
+    <!-- https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards -->
+    <!-- https://github.com/PHPCompatibility/PHPCompatibilityWP -->
+
+    <!-- DOCUMENTATION FOR RULES -->
+    <!-- built-ins: https://github.com/squizlabs/PHP_CodeSniffer/wiki/Customisable-Sniff-Properties -->
+    <!-- built-ins src (no docs available): https://github.com/squizlabs/PHP_CodeSniffer/tree/master/src/Standards -->
+    <!-- phpcsextra: https://github.com/phpcsstandards/phpcsextra#sniffs -->
+    <!-- wpcs customizable: https://github.com/WordPress/WordPress-Coding-Standards/wiki/Customizable-sniff-properties -->
+    <!-- wpcs all sniffs src: https://github.com/WordPress/WordPress-Coding-Standards/tree/develop/WordPress/Sniffs -->
+
+    <!-- DEFAULTS-->
+    <!-- WordPress-Core: https://github.com/WordPress/WordPress-Coding-Standards/blob/develop/WordPress-Core/ruleset.xml -->
+    <!-- WordPress-Extra: https://github.com/WordPress/WordPress-Coding-Standards/blob/develop/WordPress-Extra/ruleset.xml -->
+    <!-- PHPCompatibilityWP: https://github.com/PHPCompatibility/PHPCompatibilityWP/blob/master/PHPCompatibilityWP/ruleset.xml -->
+
+    <!-- todo check for migration from squizlabs/PHP_CodeSniffer to PHPCSStandards/PHP_CodeSniffer and 3.8.0 version -->
+
+
+    <!-- Pass some flags to PHPCS: p flag: Show progress of the run. s flag: Show sniff codes in all reports -->
+	<arg value="ps"/>
+
+    <arg name="colors"/><!-- Use colors in output -->
+
+	<arg name="basepath" value="./"/><!-- Strip the filepaths down to the relevant bit. -->
+
+	<arg name="parallel" value="20"/><!-- Check up to 20 files simultaneously -->
+
+    <!-- Set the memory limit to 256M.
+     For most standard PHP configurations, this means the memory limit will temporarily be raised.
+     Ref: https://github.com/squizlabs/PHP_CodeSniffer/wiki/Advanced-Usage#specifying-phpini-settings
+    -->
+    <ini name="memory_limit" value="256M"/>
+
+	<arg name="extensions" value="php"/><!-- Only check the PHP files -->
+
+	<file>.</file><!-- Check all files in this directory and the directories below it (applied to CLI) -->
+
+    <!-- Exclude patterns. -->
+    <exclude-pattern>/vendor/*</exclude-pattern>
+    <exclude-pattern>/node_modules/*</exclude-pattern>
+
+    <!--
+    #############################################################################
+    USE WordPress-Extra RULESET (it includes WordPress-Core)
+    #############################################################################
+    -->
+
+    <rule ref="WordPress-Extra">
+        <exclude name="Generic.WhiteSpace.DisallowSpaceIndent" /><!-- spaces are used instead of tabs -->
+        <exclude name="WordPress.Files.FileName" /><!-- generally ok, but class-*.php files looks ugly -->
+        <exclude name="Universal.Arrays.DisallowShortArraySyntax" /><!-- short array syntax is cleaner -->
+        <!-- escaping is ok, but the theme has many simple templates, where custom fields are outputted, mb enable in future -->
+        <exclude name="WordPress.Security.EscapeOutput" />
+        <exclude name="WordPress.PHP.YodaConditions"/><!-- makes code harder to read -->
+        <exclude name="WordPress.WhiteSpace.ControlStructureSpacing"/><!-- not customizable, replaced by PSR2.ControlStructures.ControlStructureSpacing-->
+        <exclude name="Generic.PHP.DisallowShortOpenTag"/><!-- short echo tag is ok `<?= ?>` -->
+        <!-- one-line returns and assignment after 'if' make code cleaner (but this violates psr12, mb change later) -->
+        <exclude name="Generic.ControlStructures.InlineControlStructure"/>
+        <exclude name="WordPress.WP.EnqueuedResources"/><!-- allow for 3rd party things -->
+        <exclude name="WordPress.WhiteSpace.OperatorSpacing"/><!-- replaced by Squiz.WhiteSpace.OperatorSpacing -->
+        <exclude name="WordPress.WP.EnqueuedResourceParameters"/><!-- disabled because resources have their hash in filename -->
+        <!-- commented code is ok for the project because it can contain short samples of code -->
+        <exclude name="Squiz.PHP.CommentedOutCode"/>
+        <!-- false positive when applying core wp actions/filters, for example in custom nav walker -->
+        <exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound"/>
+    </rule>
+
+    <!--
+    #############################################################################
+    SNIFF SPECIFIC CONFIGURATION
+    #############################################################################
+    -->
+
+    <!-- Set the minimum supported WP version. This is used by several sniffs. -->
+    <config name="minimum_wp_version" value="6.0"/>
+
+    <!-- Verify that the text_domain is set to the theme text-domain. -->
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array" value="aorion"/>
+        </properties>
+    </rule>
+
+    <!-- Verify that everything in the global namespace is prefixed with a theme specific prefix. -->
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+        <properties>
+            <property name="prefixes" type="array">
+                <element  value="wordpress_theme_vite"/>
+                <element  value="theme"/>
+            </property>
+        </properties>
+        <!-- exclude checks for prefixed variables in templates, in most cases these variables are local -->
+        <exclude-pattern>/page-templates/*</exclude-pattern>
+        <exclude-pattern>/partials/*</exclude-pattern>
+        <exclude-pattern>/template-parts/*</exclude-pattern>
+        <exclude-pattern>/403.php</exclude-pattern>
+        <exclude-pattern>/404.php</exclude-pattern>
+        <exclude-pattern>/archive.php</exclude-pattern>
+        <exclude-pattern>/category.php</exclude-pattern>
+        <exclude-pattern>/comments.php</exclude-pattern>
+        <exclude-pattern>/footer.php</exclude-pattern>
+        <exclude-pattern>/front-page.php</exclude-pattern>
+        <exclude-pattern>/header.php</exclude-pattern>
+        <exclude-pattern>/page.php</exclude-pattern>
+        <exclude-pattern>/search.php</exclude-pattern>
+        <exclude-pattern>/sidebar.php</exclude-pattern>
+        <exclude-pattern>/single.php</exclude-pattern>
+    </rule>
+
+    <!--
+    #############################################################################
+    OVERRIDE
+    #############################################################################
+    -->
+
+    <!-- 4 spaces indent, disallow tabs   -->
+    <rule ref="Generic.WhiteSpace.ScopeIndent">
+        <properties>
+            <property name="indent" value="4"/>
+            <property name="tabIndent" value="false"/>
+        </properties>
+    </rule>
+    <rule ref="Generic.WhiteSpace.DisallowTabIndent" />
+
+    <!-- foo($a, $b) -->
+    <rule ref="PEAR.Functions.FunctionCallSignature">
+        <properties>
+            <property name="requiredSpacesAfterOpen" value="0"/>
+            <property name="requiredSpacesBeforeClose" value="0"/>
+            <!--<property name="allowMultipleArguments" value="true"/>--><!-- wp default is false -->
+        </properties>
+    </rule>
+
+    <!-- function foo($a, $b = 1) (check default values) -->
+    <rule ref="Squiz.Functions.FunctionDeclarationArgumentSpacing">
+        <properties>
+            <property name="requiredSpacesAfterOpen" value="0" />
+            <property name="requiredSpacesBeforeClose" value="0" />
+        </properties>
+    </rule>
+
+    <!-- $foo = ($bar !== 'bar') -->
+    <rule ref="Generic.WhiteSpace.ArbitraryParenthesesSpacing">
+        <properties>
+            <property name="spacing" value="0" />
+            <property name="ignoreNewlines" value="true" />
+        </properties>
+    </rule>
+
+    <!-- replaces WordPress.WhiteSpace.ControlStructureSpacing, 0 spaces is default. `if ($a === 1)` -->
+    <rule ref="PSR2.ControlStructures.ControlStructureSpacing" />
+
+    <!-- replaces WordPress.WhiteSpace.OperatorSpacing. `if ($a === 1 && !$b)` -->
+    <rule ref="Squiz.WhiteSpace.OperatorSpacing">
+        <properties>
+            <property name="ignoreNewlines" value="true" />
+        </properties>
+    </rule>
+
+    <!-- no space after ! => if (!$flag) -->
+    <rule ref="Generic.Formatting.SpaceAfterNot">
+        <properties>
+            <property name="spacing" value="0" />
+        </properties>
+    </rule>
+
+    <!-- enforce code indentation to always be a multiple of 4 spaces, but allow multiline html attributes to be
+    aligned along the start of the first attribute -->
+    <rule ref="Universal.WhiteSpace.PrecisionAlignment">
+        <properties>
+            <property name="ignoreAlignmentBefore" type="array">
+                <!--<element value="T_COMMENT"/>-->
+                <element value="T_INLINE_HTML"/>
+            </property>
+        </properties>
+    </rule>
+
+    <rule ref="WordPress.Arrays.MultipleStatementAlignment">
+        <properties>
+            <!-- No need to adjust alignment of large arrays when the item with the largest key is removed. -->
+            <property name="exact" value="false"/>
+            <!-- Don't align multi-line items if ALL items in the array are multi-line. -->
+            <property name="alignMultilineItems" value="!=100"/>
+        </properties>
+    </rule>
+
+    <!-- align '=' in assignments, reduce maxPadding from 40 to 25 to prevent very long lines -->
+    <rule ref="Generic.Formatting.MultipleStatementAlignment">
+        <properties>
+            <property name="maxPadding" value="25"/>
+        </properties>
+    </rule>
+
+    <!-- variables with wp common names -->
+    <rule ref="WordPress.WP.GlobalVariablesOverride">
+        <properties>
+            <property name="treat_files_as_scoped" value="true"/><!-- check only `global` variables -->
+        </properties>
+    </rule>
+
+    <rule ref="WordPress.WP.AlternativeFunctions">
+        <properties>
+            <property name="exclude" type="array">
+                <element value="file_get_contents"/><!-- false positive when reading local files -->
+            </property>
+        </properties>
+    </rule>
+
+    <!-- to check the project sometimes-->
+<!--    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="120" />
+            <property name="absoluteLineLimit" value="121" />
+            <property name="ignoreComments" value="true" />
+        </properties>
+    </rule>-->
+
+	<!--
+	#############################################################################
+	USE THE PHPCompatibilityWP RULESET
+	#############################################################################
+	temp solution: dev-develop version of PHPCompatibility is installed because stable version only supports PHP sniffs
+	up to 7.4, update composer.json after PHPCompatibility: 10 and PHPCompatibilityWP: 3 are available
+	-->
+    <config name="testVersion" value="8.0-"/>
+    <rule ref="PHPCompatibilityWP">
+        <include-pattern>*\.php</include-pattern>
+    </rule>
+
+</ruleset>
+<!--
+ignoring examples:
+  - blocks:
+// phpcs:disable
+// phpcs:enable
+// phpcs:disable WordPress.WP.AlternativeFunctions
+  - lines:
+// phpcs:ignore
+// phpcs:ignore Squiz.Arrays.ArrayDeclaration.SingleLineNotAllowed
+code(); // phpcs:ignore
+-->

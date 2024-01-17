@@ -17,13 +17,13 @@
                 </div>
 
                 <?php
-                $locations  = get_nav_menu_locations();
-                if (isset($locations[ 'primary' ])) {
-                    $menu       = wp_get_nav_menu_object($locations[ 'primary' ]);
+                $locations = get_nav_menu_locations();
+                if (isset($locations['primary'])) {
+                    $menu       = wp_get_nav_menu_object($locations['primary']);
                     $menu_items = wp_get_nav_menu_items($menu);
                 }
-                if (isset($locations[ 'primary' ]) && isset($menu_items)) :
-                ?>
+                if (isset($locations['primary']) && isset($menu_items)) :
+                    ?>
                 <ul class="navbar-nav mx-3">
                     <?php foreach ($menu_items as $menu_item) : ?>
                     <li class="nav-item">

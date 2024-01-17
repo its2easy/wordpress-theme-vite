@@ -1,6 +1,6 @@
 Example of Vite integration with a WordPress theme, made to be easily used in other themes.
 
-## Main features
+## Features
 
 - support for different use cases:
   - multiple entry points
@@ -17,6 +17,7 @@ Example of Vite integration with a WordPress theme, made to be easily used in ot
 - ability to define a local WP host in .env file and not store it in git
 - SCSS, Autoprefixer (optional)
 - easy to integrate with an existing theme
+- compatible with PHP 7.4+
 
 The theme contains a small amount of content that is used primarily to verify that the build is working correctly.
 There are only a few files related to the asset compilation. The main files are `inc/vite-assets.php`, `vite.config.js`,
@@ -64,6 +65,7 @@ npm start
 # build for production
 npm run build
 ```
+Theme relies on `manifest.json` in prod mode, so `npm run build` must be run at least once
 
 #### How to add a new entry point?
 Add the path to the source file in two places:

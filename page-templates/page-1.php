@@ -4,8 +4,8 @@
  */
 get_header();
 while (have_posts()) :
-	the_post();
-	?>
+    the_post();
+    ?>
 <section>
     <div class="container">
         <h1>Page-1 template</h1>
@@ -18,7 +18,7 @@ while (have_posts()) :
             <div class="check-item check-page-1-entry">page 1 entrypoint:</div>
             <div class="check-item check-component-1">example component 1:</div>
             <div class="check-item check-component-2">example component 2:</div>
-            <div class="check-item check-dynamic-import">css of dynamically imported js:</div>
+            <div class="check-item check-dynamic-import">css of dynamically imported js (click button ↑):</div>
             <div class="check-bs">
                 <span>bootstrap styles:</span>
                 <div class="alert alert-success mb-0 check-bs-alert" role="alert">success alert!</div>
@@ -32,6 +32,6 @@ while (have_posts()) :
         </div>
     </div>
 </section>
-<?php
+    <?php
 endwhile;
 get_footer();

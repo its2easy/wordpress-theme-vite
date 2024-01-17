@@ -5,8 +5,9 @@
 
 if (!defined('ABSPATH')) exit;
 
-require get_template_directory() . '/inc/setup.php'; // Theme setup
-require get_template_directory() . '/inc/vite-assets.php'; // Theme scripts and styles
+
+require get_template_directory() . '/inc/setup.php'; // Theme basic setup
+require get_template_directory() . '/inc/vite-assets.php'; // vite-related functions
 
 
 /**
@@ -16,7 +17,7 @@ require get_template_directory() . '/inc/vite-assets.php'; // Theme scripts and 
  */
 function theme_get_entry_points_for_current_page(): array {
     // files will be included in the same order in which they were added
-    $entry_points = array( 'src/js/main-entrypoint.js' );
+    $entry_points   = array( 'src/js/main-entrypoint.js' );
     $entry_points[] = 'src/scss/style-only-entrypoint.scss'; // css-only entrypoint
     // files could be added conditionally
     if (is_front_page()) $entry_points[] = 'src/js/frontpage-entrypoint.js';
@@ -26,7 +27,8 @@ function theme_get_entry_points_for_current_page(): array {
 }
 
 
-// example of passing data to js (one 'phpData' object for all the scripts and pages, but data could be added conditionally)
+// (Optional) Example of passing data to js (one 'phpData' object for all the scripts and pages, but data could be
+// added conditionally)
 function theme_output_js_data() {
     $data = [
         'ajax_url' => admin_url('admin-ajax.php'),

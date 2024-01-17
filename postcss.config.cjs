@@ -3,7 +3,7 @@ module.exports = ({env}) => {
     // const isProd = env === "production";
     return {
         plugins: [
-            // intentionally (and optionally) enabled for prod because some properties don't work when unprefixed even
+            // intentionally enabled for both modes because some properties don't work unprefixed even
             // in chrome ('npx autoprefixer --info' to check what is prefixing)
             require('autoprefixer'),
         ],

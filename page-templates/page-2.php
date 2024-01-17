@@ -4,8 +4,8 @@
  */
 get_header();
 while (have_posts()) :
-	the_post();
-	?>
+    the_post();
+    ?>
 <section>
     <div class="container">
         <h1>Page-2 template</h1>
@@ -30,6 +30,6 @@ while (have_posts()) :
         </div>
     </div>
 </section>
-<?php
+    <?php
 endwhile;
 get_footer();
