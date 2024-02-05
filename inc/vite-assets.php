@@ -1,15 +1,17 @@
 <?php
 
 /**
- * Main function that handles dynamic assets. It relies on `theme_get_entry_points_for_current_page()` defined in
- * the theme
+ * Main function that handles dynamic assets. It relies on the function (`theme_get_entry_points_for_current_page()`
+ * by default) defined in the theme
  */
 function theme_enqueue_vite_assets(): void {
-    $is_dev_mode     = theme_is_dev_server();
-    $entry_points    = theme_get_entry_points_for_current_page();
-    $frontend_config = theme_get_frontend_config(); // shared variables between js and php
-    $scripts_queue   = []; // scripts to include on the current page
-    $styles_queue    = []; // styles to include on the current page
+    // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- to be used in any theme
+    $entry_points_func = apply_filters('theme_assets_entry_points_function', 'theme_get_entry_points_for_current_page');
+    $entry_points      = call_user_func($entry_points_func); // function must be defined in the theme
+    $is_dev_mode       = theme_is_dev_server();
+    $frontend_config   = theme_get_frontend_config(); // shared variables between js and php
+    $scripts_queue     = []; // scripts to include on the current page
+    $styles_queue      = []; // styles to include on the current page
 
     // ======= DEV (assets from vite dev server (only entrypoints for current page))
     if ($is_dev_mode) {
@@ -82,8 +84,8 @@ function theme_modify_script_tag_for_modules($tag, $handle): string {
 }
 add_filter('script_loader_tag', 'theme_modify_script_tag_for_modules', 15, 3);
 
-// Add 'modulepreload' directives to <head>, because vite doesn't handle wp templates. Function relies on
-// `theme_get_entry_points_for_current_page()` defined in the theme
+// Add 'modulepreload' directives to <head>, because vite doesn't handle wp templates. Function relies on the function
+// (`theme_get_entry_points_for_current_page()` by default) defined in the theme
 // https://vitejs.dev/guide/features.html#preload-directives-generation
 function theme_add_modulepreload_links(): void {
     if (theme_is_dev_server()) return; // 'modulepreload's are required only for prod
@@ -97,7 +99,9 @@ function theme_add_modulepreload_links(): void {
 
     $theme                  = get_template();
     $prod_assets_folder_url = "/wp-content/themes/$theme/{$frontend_config['distFolder']}";
-    $entry_points           = theme_get_entry_points_for_current_page(); // function must be defined in the theme
+    // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- to be used in any theme
+    $entry_points_func = apply_filters('theme_assets_entry_points_function', 'theme_get_entry_points_for_current_page');
+    $entry_points      = call_user_func($entry_points_func); // function must be defined in the theme
 
     $urls = [];
     foreach ($entry_points as $entry_point) {

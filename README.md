@@ -44,8 +44,15 @@ require get_template_directory() . '/inc/vite-assets.php';
    - `viteServerPort` - port where the vite dev server emits its assets (on localhost)
    - `devModeProxyHeader` - custom header name, which is used to check dev mode
 7. Create a function `theme_get_entry_points_for_current_page()` (example in `functions.php`) that returns a list of
-  entry points that need to be included on the current page. If you want to use a
-  function with a different name, just rename `theme_get_entry_points_for_current_page()` calls in `vite-assets.php`.
+  entry points that need to be included on the current page. If you want to use a function with a different name,
+ use filter with the name of your function:
+ ```php
+add_filter('theme_assets_entry_points_function',
+    function () {
+        return 'your_function_name';
+    }
+);
+```
 8. Add `import 'vite/modulepreload-polyfill';` to the beginning of the main js entry point of the theme
   (example in `src/js/main-entry point.js`)
 9. Add scripts to `package.json`:

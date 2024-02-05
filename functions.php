@@ -26,6 +26,16 @@ function theme_get_entry_points_for_current_page(): array {
     return $entry_points;
 }
 
+// example of using a function with a different name to return entry points
+/*
+add_filter(
+    'theme_assets_entry_points_function',
+    function () {
+        return 'your_function_name';
+    }
+);
+*/
+
 
 // (Optional) Example of passing data to js (one 'phpData' object for all the scripts and pages, but data could be
 // added conditionally)
