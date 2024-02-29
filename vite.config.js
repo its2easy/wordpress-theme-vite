@@ -58,28 +58,30 @@ export default defineConfig(({ mode }) => {
         },
         plugins: [
             VitePluginBrowserSync({
-                bs: {
-                    //port: 3000, // default is 3000, change if you have conflicts
-                    proxy: {
-                        target: env.PROXY_SOURCE, // host from local server when WP is running, stored in .env file
-                        proxyReq: [ // set header to check dev mode on WP side
-                            function (proxyReq) {
-                                proxyReq.setHeader(config.devModeProxyHeader, "1"); // value is not important
-                            },
+                dev: {
+                    bs: {
+                        //port: 3000, // default is 3000, change if you have conflicts
+                        proxy: {
+                            target: env.PROXY_SOURCE, // host from local server when WP is running, stored in .env file
+                            proxyReq: [ // set header to check dev mode on WP side
+                                function (proxyReq) {
+                                    proxyReq.setHeader(config.devModeProxyHeader, "1"); // value is not important
+                                },
+                            ],
+                        },
+                        files: [ // Reload the page if a file was changed. Relative to cwd, not to config
+                            './**/*.php', // all php
+                            './assets/**/*', // static assets
                         ],
+                        // `open` is explicitly specified here to open only browserSync host
+                        open: 'local',
+                        notify: true,
+                        codeSync: true, // override VitePluginBrowserSync default (false), required for 'files' option
+                        watchEvents: ['change', 'add'], // default is only 'change'
+                        ghostMode: false, // disable sync between devices, not always useful
+                        logLevel: 'info', // plugin overrides it with 'silent', causing 'Proxying' url not displaying in terminal
                     },
-                    files: [ // Reload the page if a file was changed. Relative to cwd, not to config
-                        './**/*.php', // all php
-                        './assets/**/*', // static assets
-                    ],
-                    // `open` is explicitly specified here to open only browserSync host
-                    open: 'local',
-                    notify: true,
-                    codeSync: true, // override VitePluginBrowserSync default (false), required for 'files' option
-                    watchEvents: ['change', 'add'], // default is only 'change'
-                    ghostMode: false, // disable sync between devices, not always useful
-                    logLevel: 'info', // plugin overrides it with 'silent', causing 'Proxying' url not displaying in terminal
-                },
+                }
             }),
             // legacy({ // example for polyfills, see note at the bottom
             //     modernPolyfills: true, // entry name in manifest.json is 'vite/legacy-polyfills'
@@ -89,6 +91,7 @@ export default defineConfig(({ mode }) => {
         ],
         css: {
             devSourcemap: true,
+            preprocessorMaxWorkers: true, // experimental
         },
         // strip comments from imported packages (~5-10kb), 'external' and 'linked' options don't work
         // https://github.innominds.com/vitejs/vite/discussions/5329
