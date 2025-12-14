@@ -30,7 +30,7 @@ export default defineConfig(({ mode }) => {
         build: {
             outDir: resolve(__dirname, `./${config.distFolder}`),
             manifest: true, // need for wordpress to enqueue files (option works only for prod build)
-            target: 'modules', // esbuild target, same as .browserslistrc
+            target: 'baseline-widely-available', // esbuild target, same as .browserslistrc
             rollupOptions: {
                 input: {
                     // Object keys are arbitrary, but they will be used in the names of the compiled chunks. Paths
@@ -92,6 +92,13 @@ export default defineConfig(({ mode }) => {
         css: {
             devSourcemap: true,
             preprocessorMaxWorkers: true, // experimental
+            preprocessorOptions: {
+                scss: {
+                    // https://github.com/twbs/bootstrap/issues/40962#issuecomment-2448214806
+                    // waiting for bootstrap 6 to fix its scss
+                    silenceDeprecations: ['color-functions', 'global-builtin', 'import', 'if-function']
+                },
+            }
         },
         // strip comments from imported packages (~5-10kb), 'external' and 'linked' options don't work
         // https://github.innominds.com/vitejs/vite/discussions/5329

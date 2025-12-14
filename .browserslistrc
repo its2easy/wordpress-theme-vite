@@ -1,7 +1,7 @@
 # Same as 'modules' in build.target in vite.config.js
 # https://vitejs.dev/guide/build.html#browser-compatibility
 # .browserslistrc is used by autoprefixer, vite uses its own config
-Chrome >= 87
-Firefox >= 78
-Safari >= 14
-Edge >= 88
+Chrome >= 107
+Firefox >= 104
+Safari >= 16.0
+Edge >= 107
