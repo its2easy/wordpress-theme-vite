@@ -75,7 +75,7 @@
     -->
 
     <!-- Set the minimum supported WP version. This is used by several sniffs. -->
-    <config name="minimum_wp_version" value="6.0"/>
+    <config name="minimum_wp_version" value="6.5"/>
 
     <!-- Verify that the text_domain is set to the theme text-domain. -->
     <rule ref="WordPress.WP.I18n">

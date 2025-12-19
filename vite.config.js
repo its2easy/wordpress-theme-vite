@@ -2,33 +2,32 @@ import { resolve } from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import VitePluginBrowserSync from 'vite-plugin-browser-sync' // https://github.com/Applelo/vite-plugin-browser-sync
 
-// shared config for js and php. `config.themeFolder` - it's possible to get themeFolder from process.cwd() but in some
-// cases (like Docker) theme folder name in project is not the same as folder name inside WP, so themeFolder is in config.
+// shared config for js and php. `config.themeFolder` - it's possible to use current folder as themeFolder but in some
+// cases (like Docker) theme folder name in a project is different from folder name inside WP, so themeFolder is in config.
 import config from './frontend-config.json';
 
 export default defineConfig(({ mode }) => {
     const isDev = mode === 'development';
-    const env = loadEnv('', process.cwd(), '');
+    const env = loadEnv('', process.cwd(), ''); // this is optional!
 
     return {
         /**
-         * Typically `base` is a path to a directory where compiled assets will be served. In WP project the assets are not
+         * Typically `base` is a path to a directory where compiled assets will be served. In WP project, the assets are not
          * copied from `build.outDir` (that is inside the theme folder) which means `base` should be an absolute path to
          * `build.outDir`. Vite uses paths like {base}/{build.assetsDir}/chunk-name to load dependencies of dynamically
-         * imported modules because their URLs are using in <link rel> and can't be relative to the file that imports a
+         * imported modules because their URLs are used in <link rel> and can't be relative to the file that imports a
          * module (should be '/wp-content/themes/theme/dist/assets/chunk2.js' instead of './chunk2.js'). It's also
          * required for static assets like images and fonts if you want vite to handle them (copy to dist, add hash, etc.)
          *
-         * [dev build]: base is used as a URL where vite (not WP!) dev server serves its assets. Scheme is
+         * [dev build]: base is used as a URL where vite (not WP!) dev server serves its assets. The Scheme is
          * {server.host}:{server.port}/{base}/{build.assetsDir}/chunk.js. This path should be used in wp_enqueue_script()
          * in dev mode.
          */
         base: isDev
             ? '/'
-            : `/wp-content/themes/${config.themeFolder}/${config.distFolder}`,
+            : `/wp-content/themes/${config.themeFolder}/dist`,
         publicDir: false, // disable copying `public/` to outDir
         build: {
-            outDir: resolve(__dirname, `./${config.distFolder}`),
             manifest: true, // need for wordpress to enqueue files (option works only for prod build)
             target: 'baseline-widely-available', // esbuild target, same as .browserslistrc
             rollupOptions: {
@@ -79,7 +78,7 @@ export default defineConfig(({ mode }) => {
                         codeSync: true, // override VitePluginBrowserSync default (false), required for 'files' option
                         watchEvents: ['change', 'add'], // default is only 'change'
                         ghostMode: false, // disable sync between devices, not always useful
-                        logLevel: 'info', // plugin overrides it with 'silent', causing 'Proxying' url not displaying in terminal
+                        logLevel: 'info', // plugin overrides it with 'silent', causing 'Proxying' url not displaying in the terminal
                     },
                 }
             }),
@@ -107,8 +106,8 @@ export default defineConfig(({ mode }) => {
             alias: {
                 '@': resolve(__dirname, 'src'),
                 // File will be copied to `build.outDir` and url() in css will be `base` + asset filename.
-                // In dev mode Vite serves it at dev server origin, but paths in css are with browserSync origin.
-                // To make it work add `http://localhost:${config.viteServerPort}` as `server.origin`
+                // In dev mode, Vite serves it at dev server origin, but paths in CSS are with browserSync origin.
+                // To make it work, add `http://localhost:${config.viteServerPort}` as `server.origin`
                 '@img': resolve(__dirname, 'assets/img'), // doesn't work in dev mode!
             }
         },

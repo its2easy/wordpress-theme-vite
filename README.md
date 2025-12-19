@@ -16,12 +16,16 @@ Example of Vite integration with a WordPress theme, made to be easily used in ot
 - ability to load compiled styles into the Gutenberg editor
 - ability to define a local WP host in .env file and not store it in git
 - SCSS, Autoprefixer (optional)
-- easy to integrate with an existing theme
-- compatible with PHP 7.4+
+- easy to integrate with an existing theme (copy 2 files, call 1 function, adjust vite.config.js)
 
 The theme contains a small amount of content that is used primarily to verify that the build is working correctly.
-There are only a few files related to the asset compilation. The main files are `inc/vite-assets.php`, `vite.config.js`,
+There are only a few files related to the asset compilation. Integration related files are `inc/vite-assets.php`, `vite.config.js`,
 and `frontend-config.json`.
+
+### Minimal requirements
+- PHP 7.4+
+- WP 6.5+
+- Node.js 20.19+, 22.12+
 
 ## How to use it in your theme?
 1. Install packages ```npm install vite vite-plugin-browser-sync sass autoprefixer --save-dev```. *sass* and *autoprefixer*
@@ -30,20 +34,13 @@ and `frontend-config.json`.
  ```php
 require get_template_directory() . '/inc/vite-assets.php';
 ```
-3. Copy `postcss.config.cjs` and `.browserslistrc` if you need Autoprefixer.
-4. Copy `vite.config.js` to the root of the theme. Replace `build.rollupOptions.input` with your theme entry points.
-5. Copy `.env.example` as `.env` and change the `PROXY_SOURCE` variable to the domain where your local WP site is running
-   (ONLY used in DEV mode).
- This value is used to specify a proxy for browserSync in cases where the theme is used in WP instances running
- on different domains. If you don't need this, just hardcode your domain in `plugins.VitePluginBrowserSync.bs.proxy.target`
- option in `vite.config.js`
-6. Copy `frontend-config.js` to the theme root. Change the `themeName` value to the name of the theme folder, which will
+3. Copy `vite.config.js` to the root of the theme. Replace `build.rollupOptions.input` with all the entry points of your theme.
+4. Copy `frontend-config.js` to the theme root. Change the `themeName` value to the name of the theme folder, which will
  be inside the running WP instance. The folder name may be different if the theme is mounted to a Docker container, for example.
  Change other values only if they conflict with something in your theme:
-   - `distFolder` - change if this folder is already used for other purposes, it will be used as `build.outDir` vite option
    - `viteServerPort` - port where the vite dev server emits its assets (on localhost)
    - `devModeProxyHeader` - custom header name, which is used to check dev mode
-7. Create a function `theme_get_entry_points_for_current_page()` (example in `functions.php`) that returns a list of
+5. Create a function `theme_get_entry_points_for_current_page()` (example in `functions.php`) that returns a list of
   entry points that need to be included on the current page. If you want to use a function with a different name,
  use filter with the name of your function:
  ```php
@@ -53,8 +50,14 @@ add_filter('theme_assets_entry_points_function',
     }
 );
 ```
-8. Add `import 'vite/modulepreload-polyfill';` to the beginning of the main js entry point of the theme
+6. Add `import 'vite/modulepreload-polyfill';` to the beginning of the main js entry point of the theme
   (example in `src/js/main-entry point.js`)
+7. (Optional) Copy `postcss.config.cjs` and `.browserslistrc` if you need Autoprefixer.
+8. (Optional) Copy `.env.example` as `.env` and change the `PROXY_SOURCE` variable to the domain where your local WP site is running
+       (ONLY used in DEV mode).
+       This value is used to specify a proxy for browserSync in cases where the theme is used in WP instances running
+       on different domains. If you don't need this, just hardcode your domain in `plugins.VitePluginBrowserSync.bs.proxy.target`
+       option in `vite.config.js`
 9. Add scripts to `package.json`:
 ```json
 "scripts": {
@@ -62,7 +65,9 @@ add_filter('theme_assets_entry_points_function',
     "build": "vite build",
     },
 ```
-
+> [!WARNING]
+> You have to run `npm run build` at least once to generate `manifest.json`, which is required
+> to load the assets when dev server is not running
 
 ## Development
 ```bash

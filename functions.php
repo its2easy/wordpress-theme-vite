@@ -2,16 +2,15 @@
 /**
  * Theme entry point
  */
-
 if (!defined('ABSPATH')) exit;
-
 
 require get_template_directory() . '/inc/setup.php'; // Theme basic setup
 require get_template_directory() . '/inc/vite-assets.php'; // vite-related functions
 
 
 /**
- * Function returns a list of entrypoints that need to be included on the current page
+ * (Example) Function to implement in your theme. The Function returns a list of entrypoints that need to be included on
+ * the current page. Function name could be changed with 'theme_assets_entry_points_function' filter.
  *
  * @return string[]
  */
@@ -26,7 +25,7 @@ function theme_get_entry_points_for_current_page(): array {
     return $entry_points;
 }
 
-// example of using a function with a different name to return entry points
+// (Example) Example of using a function with a different name to return entry points if you don't want to modify vite-assets.php
 /*
 add_filter(
     'theme_assets_entry_points_function',
@@ -37,7 +36,7 @@ add_filter(
 */
 
 
-// (Optional) Example of passing data to js (one 'phpData' object for all the scripts and pages, but data could be
+// (Example) Example of passing data to js (one 'phpData' object for all the scripts and pages, but data could be
 // added conditionally)
 function theme_output_js_data() {
     $data = [
@@ -45,32 +44,32 @@ function theme_output_js_data() {
     ];
     ?>
     <script type="text/javascript">
-        const phpData = <?= wp_json_encode($data) ?>;
+        const phpData = <?= wp_json_encode($data); ?>;
     </script>
     <?php
 }
 add_action('wp_head', 'theme_output_js_data', 5);
 
 /**
- * (Optional) Load main compiled css files in the gutenberg editor. 'current_screen' is used to avoid downloading files
+ * (Example) Load main compiled CSS files in the gutenberg editor. 'current_screen' is used to avoid downloading files
  * (and displaying errors) on all pages, as would be the case with 'after_setup_theme'
  *
  * @param $screen WP_Screen
  */
 function theme_add_editor_styles(WP_Screen $screen) {
     if ($screen->base !== 'post') return; // 'post_type' is not checked, assuming all CPTs could have gutenberg
-    $main_entry = 'src/js/main-entrypoint.js';
+    $main_entry          = 'src/js/main-entrypoint.js';
+    $default_dist_folder = 'dist';
 
     try {
-        $frontend_config = theme_get_frontend_config(); // shared variables between js and php
-        $manifest        = theme_get_vite_manifest_data($frontend_config['distFolder']);// vite manifest
-        $css_files       = theme_get_styles_for_entry($main_entry, $manifest);
+        $manifest  = theme_get_vite_manifest_data($default_dist_folder);// vite manifest
+        $css_files = theme_get_styles_for_entry($main_entry, $manifest);
         if (pathinfo($manifest[ $main_entry ]['file'], PATHINFO_EXTENSION) === 'css') {
             $css_files[] = $manifest[ $main_entry ]['file']; // add if your entry is css-only
         }
 
         foreach ($css_files as $css_file) {
-            add_editor_style("{$frontend_config['distFolder']}/$css_file"); // path relative to the theme!
+            add_editor_style("$default_dist_folder/$css_file"); // path relative to the theme!
         }
     } catch (Exception $e) {
         // phpcs:ignore WordPress.PHP.DevelopmentFunctions -- intentional trigger_error for admin area
