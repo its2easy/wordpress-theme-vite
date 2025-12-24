@@ -119,6 +119,9 @@ To access website via LAN (Wi-Fi) network, enable `server.host: true` in `vite.c
 Then replace `localhost` with your external ip (like 192.169.0.100) in `theme_enqueue_vite_assets()` (in `vite-assets.php`).
 This could be automated with [vite-plugin-dev-manifest](https://github.com/owlsdepartment/vite-plugin-dev-manifest) that specifies an external host in its config
 
+####  DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead ...
+It comes from [http-proxy](https://github.com/http-party/node-http-proxy) that is a dependency of `browsersync`
+
 ### Other
 
 #### How to send data from PHP to JS?

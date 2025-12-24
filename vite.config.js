@@ -73,7 +73,7 @@ export default defineConfig(({ mode }) => {
                             './assets/**/*', // static assets
                         ],
                         // `open` is explicitly specified here to open only browserSync host
-                        open: 'local',
+                        //open: 'local', // opens by default in the new version
                         notify: true,
                         codeSync: true, // override VitePluginBrowserSync default (false), required for 'files' option
                         watchEvents: ['change', 'add'], // default is only 'change'
@@ -126,3 +126,5 @@ export default defineConfig(({ mode }) => {
 // Long scss compilation: slow 'sass' package, maybe the things will change in the future.
 // Workarounds: use sass-embedded https://github.com/vitejs/vite/issues/6736#issuecomment-1492974590, disable
 // css.devSourcemap, replace @import with @use (not sure)
+
+//  DeprecationWarning: The `util._extend` API is deprecated comes from Browsersync
