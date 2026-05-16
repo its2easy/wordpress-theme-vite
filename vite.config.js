@@ -5,6 +5,7 @@ import VitePluginBrowserSync from 'vite-plugin-browser-sync' // https://github.c
 // shared config for js and php. `config.themeFolder` - it's possible to use current folder as themeFolder but in some
 // cases (like Docker) theme folder name in a project is different from folder name inside WP, so themeFolder is in config.
 import config from './frontend-config.json';
+import { hmrToastPlugin } from './vite-hmr-toast-plugin';
 
 export default defineConfig(({ mode }) => {
     const isDev = mode === 'development';
@@ -88,6 +89,8 @@ export default defineConfig(({ mode }) => {
                     },
                 }
             }),
+            // optional, enable notification on styles update
+            hmrToastPlugin({ entryFile: 'src/js/main-entrypoint.js' }), // filename from rollupOptions.input
             // legacy({ // example for polyfills, see note at the bottom
             //     modernPolyfills: true, // entry name in manifest.json is 'vite/legacy-polyfills'
             //     polyfills: false,
