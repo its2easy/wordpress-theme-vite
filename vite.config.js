@@ -68,6 +68,12 @@ export default defineConfig(({ mode }) => {
                                 },
                             ],
                         },
+                        ignore: [
+                            'node_modules',
+                            'vendor',
+                            '**/.{git,idea,vscode}/**',
+                            'dist/**',
+                        ],
                         files: [ // Reload the page if a file was changed. Relative to cwd, not to config
                             './**/*.php', // all php
                             './assets/**/*', // static assets
